@@ -33,7 +33,10 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('restaurants', 'readwrite');
           let keyValStore = tx.objectStore('restaurants')
-   
+          
+          console.log("From server: ");
+          console.log(response);
+
           response.forEach((restaurant) =>{
             keyValStore.put(restaurant);
           })
