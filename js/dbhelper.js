@@ -89,7 +89,12 @@ class DBHelper {
           response.forEach((review) =>{
             keyValStore.put(review);
           })
-          return keyValStore.getAll();
+          let result = keyValStore.getAll().then((response) => {
+            return response.filter( (review) => {
+              return review.restaurant_id == id;
+            });
+          });
+          return result;
         })
       })
       .then((response) => {
@@ -99,7 +104,13 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('reviews', 'readwrite');
           let keyValStore = tx.objectStore('reviews')
-          return keyValStore.getAll();
+
+          let result = keyValStore.getAll().then((response) => {
+            return response.filter( (review) => {
+              return review.restaurant_id == id;
+            });
+          });
+          return result;
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
