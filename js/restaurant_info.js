@@ -1,4 +1,5 @@
 let restaurant;
+let reviews;
 var newMap;
 
 /**
@@ -6,6 +7,7 @@ var newMap;
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
+  fetchReviews();
 });
 
 /**
@@ -72,7 +74,24 @@ fetchRestaurantFromURL = (callback) => {
     });
   }
 }
+/**
+ * Fetch the reviews for this id
+ */
+fetchReviews = (callback) => {
+  const id = getParameterByName('id');
 
+  DBHelper.fetchReviews(id,(error, response) => {
+    if(error) {
+      console.log("no reviews "+error);
+      callback(error,null);
+    } else {
+      console.log("reviews fetched: ")
+      console.log(response);
+      callback(null,response);
+    }
+  });
+  //console.log("reviews fetched "+id);
+};
 /**
  * Create restaurant HTML and add it to the webpage
  */

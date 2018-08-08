@@ -13,6 +13,14 @@ class DBHelper {
   }
 
   /**
+   * Reviews Database URL.
+   */
+  static get REVIEWS_DATABASE_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews/?restaurant_id=`;
+  }
+
+  /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
@@ -50,6 +58,53 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('restaurants', 'readwrite');
           let keyValStore = tx.objectStore('restaurants')
+          return keyValStore.getAll();
+        }).then((response) => {
+          callback(null, response);
+        }).catch((e) => {
+          callback(e, response);
+        });
+    });
+  }
+
+  /**
+   * Fetch all reviews for a restaurant.
+   */
+  static fetchReviews(id, callback) {
+    const dbPromise = idb.open('reviewsDB', 1, upgradeDB => {
+      switch (upgradeDB.oldVersion){
+        case 0:
+        upgradeDB.createObjectStore('reviews', {
+          keyPath: 'id'
+        });
+      }
+    })
+
+    fetch(DBHelper.REVIEWS_DATABASE_URL+id)
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        return dbPromise.then(db => {
+          const tx = db.transaction ('reviews', 'readwrite');
+          let keyValStore = tx.objectStore('reviews')
+          
+          //console.log("Reviews: ");
+          //console.log(response);
+
+          response.forEach((review) =>{
+            keyValStore.put(review);
+          })
+          return keyValStore.getAll();
+        })
+      })
+      .then((response) => {
+        callback(null, response);
+      })
+      .catch((error) => {
+        return dbPromise.then(db => {
+          const tx = db.transaction ('reviews', 'readwrite');
+          let keyValStore = tx.objectStore('reviews')
           return keyValStore.getAll();
         }).then((response) => {
           callback(null, response);
