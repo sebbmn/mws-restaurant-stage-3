@@ -40,3 +40,12 @@ self.addEventListener('fetch', function(event) {
     })
   );
 });
+/**
+ * sync task to send the data once online
+ */
+self.addEventListener('sync', function(event) {
+  event.waitUntil( () => {
+      console.log("do asynchronous tasks here");
+    }
+  );
+});

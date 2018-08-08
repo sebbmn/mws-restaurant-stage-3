@@ -16,7 +16,21 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
   .then(function(reg) {
     // registration worked
+    if ('sync' in reg) {
+      var form = document.getElementById("comments_form");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        let message = {
+          "restaurant_id": 2,
+          "name": 'tes_message',
+          "rating": 100,
+          "comments": "some sirup"
+        }
+      });
+    }
     console.log('Registration succeeded. Scope is ' + reg.scope);
+
   }).catch(function(error) {
     // registration failed
     console.log('Registration failed with ' + error);
@@ -212,30 +226,3 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
-/**
- * Send the review from the form
- */
-window.addEventListener("load", function () {
-  function sendData() {
-    var XHR = new XMLHttpRequest();
-    var FD = new FormData(form);
-
-    XHR.addEventListener("load", function(event) {
-      alert("Your review has been sent, thank you!");
-      fillReviewsHTML();
-    });
-    XHR.addEventListener("error", function(event) {
-      alert('Oops! Something went wrong, try to resend you review.');
-    });
-
-    XHR.open("POST", "http://localhost:1337/reviews/");
-    XHR.send(FD);
-  }
-
-  var form = document.getElementById("comments_form");
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    sendData();
-  });
-});

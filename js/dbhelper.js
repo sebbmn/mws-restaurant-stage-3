@@ -59,7 +59,7 @@ class DBHelper {
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
-          callback(e, response);
+          callback(e, null);
         });
     });
   }
@@ -119,7 +119,31 @@ class DBHelper {
         });
     });
   }
-
+  /**
+   * Put a review if online, else save it in the store
+   */
+  static putReview(review) {
+    let url = "http://localhost:1337/reviews/"
+    fetch(url, {
+      method: "POST", 
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "same-origin",
+      headers: {
+          "Content-Type": "application/json; charset=utf-8",
+      },
+      redirect: "follow",
+      referrer: "no-referrer",
+      body: JSON.stringify(review),
+    })
+    .then((response) => {
+      response.json()
+      console.log("review posted?");
+    }) // parses response to JSON
+    .catch((error) => {
+      console.error(`Fetch Error =\n`, error);
+    });
+  }
   /**
    * Fetch a restaurant by its ID.
    */
