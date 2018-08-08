@@ -13,6 +13,14 @@ class DBHelper {
   }
 
   /**
+   * Reviews Database URL.
+   */
+  static get REVIEWS_DATABASE_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews/?restaurant_id=`;
+  }
+
+  /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
@@ -33,9 +41,6 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('restaurants', 'readwrite');
           let keyValStore = tx.objectStore('restaurants')
-          
-          console.log("From server: ");
-          console.log(response);
 
           response.forEach((restaurant) =>{
             keyValStore.put(restaurant);
@@ -55,6 +60,61 @@ class DBHelper {
           callback(null, response);
         }).catch((e) => {
           callback(e, response);
+        });
+    });
+  }
+
+  /**
+   * Fetch all reviews for a restaurant.
+   */
+  static fetchReviews(id, callback) {
+    const dbPromise = idb.open('reviewsDB', 1, upgradeDB => {
+      switch (upgradeDB.oldVersion){
+        case 0:
+        upgradeDB.createObjectStore('reviews', {
+          keyPath: 'id'
+        });
+      }
+    })
+
+    fetch(DBHelper.REVIEWS_DATABASE_URL+id)
+      .then((response) => {
+        return response.json();
+      })
+      .then((response) => {
+        return dbPromise.then(db => {
+          const tx = db.transaction ('reviews', 'readwrite');
+          let keyValStore = tx.objectStore('reviews')
+
+          response.forEach((review) =>{
+            keyValStore.put(review);
+          })
+          let result = keyValStore.getAll().then((response) => {
+            return response.filter( (review) => {
+              return review.restaurant_id == id;
+            });
+          });
+          return result;
+        })
+      })
+      .then((response) => {
+        callback(null, response);
+      })
+      .catch((error) => {
+        return dbPromise.then(db => {
+          const tx = db.transaction ('reviews', 'readwrite');
+          let keyValStore = tx.objectStore('reviews')
+
+          let result = keyValStore.getAll().then((response) => {
+            return response.filter( (review) => {
+              return review.restaurant_id == id;
+            });
+          });
+          return result;
+        }).then((response) => {
+          callback(null, response);
+        }).catch((e) => {
+          callback(e, null);
         });
     });
   }

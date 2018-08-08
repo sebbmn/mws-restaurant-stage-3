@@ -1,4 +1,5 @@
 let restaurant;
+let reviews;
 var newMap;
 
 /**
@@ -72,7 +73,20 @@ fetchRestaurantFromURL = (callback) => {
     });
   }
 }
+/**
+ * Fetch the reviews for this id
+ */
+fetchReviews = (callback) => {
+  const id = getParameterByName('id');
 
+  DBHelper.fetchReviews(id,(error, response) => {
+    if(error) {
+      console.log("no reviews "+error);
+    } else {
+      callback(null,response);
+    }
+  });
+};
 /**
  * Create restaurant HTML and add it to the webpage
  */
@@ -122,23 +136,25 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = () => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
+  fetchReviews( (error,reviews) => {
+    if (error) {
+      const noReviews = document.createElement('p');
+      noReviews.innerHTML = 'No reviews yet!';
+      container.appendChild(noReviews);
+      return;
+    }
+    const ul = document.getElementById('reviews-list');
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
+  })
 }
 
 /**
@@ -149,9 +165,8 @@ createReviewHTML = (review) => {
   const name = document.createElement('p');
   name.innerHTML = review.name;
   li.appendChild(name);
-
   const date = document.createElement('p');
-  date.innerHTML = review.date;
+  date.innerHTML = new Date(review.createdAt);
   li.appendChild(date);
 
   const rating = document.createElement('p');
@@ -190,3 +205,30 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+/**
+ * Send the review from the form
+ */
+window.addEventListener("load", function () {
+  function sendData() {
+    var XHR = new XMLHttpRequest();
+    var FD = new FormData(form);
+
+    XHR.addEventListener("load", function(event) {
+      alert("Your review has been sent, thank you!");
+      fillReviewsHTML();
+    });
+    XHR.addEventListener("error", function(event) {
+      alert('Oops! Something went wrong, try to resend you review.');
+    });
+
+    XHR.open("POST", "http://localhost:1337/reviews/");
+    XHR.send(FD);
+  }
+
+  var form = document.getElementById("comments_form");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    sendData();
+  });
+});
