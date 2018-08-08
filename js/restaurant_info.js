@@ -139,8 +139,15 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 fillReviewsHTML = () => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
+
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+  let reviewList = document.getElementById('reviews-list');
+  while(reviewList.hasChildNodes())
+  {
+    reviewList.removeChild(reviewList.lastChild);
+  }
 
   fetchReviews( (error,reviews) => {
     if (error) {

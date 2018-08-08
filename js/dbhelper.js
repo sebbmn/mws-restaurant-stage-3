@@ -85,6 +85,7 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('reviews', 'readwrite');
           let keyValStore = tx.objectStore('reviews')
+          keyValStore.clear();
 
           response.forEach((review) =>{
             keyValStore.put(review);
