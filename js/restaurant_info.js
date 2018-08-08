@@ -7,7 +7,6 @@ var newMap;
  */
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
-  fetchReviews();
 });
 
 /**
@@ -83,14 +82,10 @@ fetchReviews = (callback) => {
   DBHelper.fetchReviews(id,(error, response) => {
     if(error) {
       console.log("no reviews "+error);
-      callback(error,null);
     } else {
-      console.log("reviews fetched: ")
-      console.log(response);
       callback(null,response);
     }
   });
-  //console.log("reviews fetched "+id);
 };
 /**
  * Create restaurant HTML and add it to the webpage
@@ -141,23 +136,25 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = () => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
 
-  if (!reviews) {
-    const noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  const ul = document.getElementById('reviews-list');
-  reviews.forEach(review => {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
+  fetchReviews( (error,reviews) => {
+    if (error) {
+      const noReviews = document.createElement('p');
+      noReviews.innerHTML = 'No reviews yet!';
+      container.appendChild(noReviews);
+      return;
+    }
+    const ul = document.getElementById('reviews-list');
+    reviews.forEach(review => {
+      ul.appendChild(createReviewHTML(review));
+    });
+    container.appendChild(ul);
+  })
 }
 
 /**
@@ -219,6 +216,7 @@ window.addEventListener("load", function () {
 
     XHR.addEventListener("load", function(event) {
       alert("Your review has been sent, thank you!");
+      fillReviewsHTML();
     });
     XHR.addEventListener("error", function(event) {
       alert('Oops! Something went wrong, try to resend you review.');

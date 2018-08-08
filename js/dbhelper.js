@@ -41,9 +41,6 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('restaurants', 'readwrite');
           let keyValStore = tx.objectStore('restaurants')
-          
-          console.log("From server: ");
-          console.log(response);
 
           response.forEach((restaurant) =>{
             keyValStore.put(restaurant);
@@ -88,9 +85,6 @@ class DBHelper {
         return dbPromise.then(db => {
           const tx = db.transaction ('reviews', 'readwrite');
           let keyValStore = tx.objectStore('reviews')
-          
-          //console.log("Reviews: ");
-          //console.log(response);
 
           response.forEach((review) =>{
             keyValStore.put(review);
@@ -109,7 +103,7 @@ class DBHelper {
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
-          callback(e, response);
+          callback(e, null);
         });
     });
   }
