@@ -49,8 +49,6 @@ if ('serviceWorker' in navigator) {
         });
         form.reset();
       });
-
-
     }
     console.log('Registration succeeded. Scope is ' + reg.scope);
 

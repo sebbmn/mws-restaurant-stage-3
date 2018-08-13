@@ -138,7 +138,7 @@ class DBHelper {
     })
     .then((response) => {
       response.json()
-      console.log("review posted?");
+      console.log("review posted");
     }) // parses response to JSON
     .catch((error) => {
       console.error(`Fetch Error =\n`, error);
