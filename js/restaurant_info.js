@@ -14,34 +14,40 @@ document.addEventListener('DOMContentLoaded', (event) => {
  */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
-  .then(function(reg) {
-    // registration worked
+  .then((reg) => {
     if ('sync' in reg) {
-      var form = document.getElementById("comments_form");
-      let message = {
-        "restaurant_id": 2,
-        "name": 'tes_message',
-        "rating": 100,
-        "comments": "some sirup"
-      }
+      let form = document.getElementById("comments_form");
 
-      form.addEventListener("submit", function (event) {
+      form.addEventListener("submit",(event) => {
         event.preventDefault();
-        console.log(message);
 
+        let inputName = form["name"].value;
+        let inputRating = form["rating"].value;
+        let inputComments = form["comments"].value;
+        const id = getParameterByName('id');
+  
+        let message = {
+          "restaurant_id": id,
+          "name": inputName,
+          "rating": inputRating,
+          "comments": inputComments
+        }
+
+        console.log(message);
+        
         idb.open('reviewsToSend', 1, function(upgradeDb) {
           upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
-        }).then(function(db) {
+        }).then((db) => {
           var transaction = db.transaction('reviews', 'readwrite');
           return transaction.objectStore('reviews').put(message);
-        }).then(function() {
+        }).then(() => {
           console.log("synced")
           return reg.sync.register('reviews');
-        }).catch(function(err) {
-          // something went wrong with the database or the sync registration, log and submit the form
+        }).catch((err) => {
           console.error(err); 
           //form.submit();
         });
+        form.reset();
       });
 
 
