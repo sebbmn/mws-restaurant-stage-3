@@ -18,16 +18,33 @@ if ('serviceWorker' in navigator) {
     // registration worked
     if ('sync' in reg) {
       var form = document.getElementById("comments_form");
+      let message = {
+        "restaurant_id": 2,
+        "name": 'tes_message',
+        "rating": 100,
+        "comments": "some sirup"
+      }
 
       form.addEventListener("submit", function (event) {
         event.preventDefault();
-        let message = {
-          "restaurant_id": 2,
-          "name": 'tes_message',
-          "rating": 100,
-          "comments": "some sirup"
-        }
+        console.log(message);
+
+        idb.open('reviewsToSend', 1, function(upgradeDb) {
+          upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
+        }).then(function(db) {
+          var transaction = db.transaction('reviews', 'readwrite');
+          return transaction.objectStore('reviews').put(message);
+        }).then(function() {
+          console.log("synced")
+          return reg.sync.register('reviews');
+        }).catch(function(err) {
+          // something went wrong with the database or the sync registration, log and submit the form
+          console.error(err); 
+          //form.submit();
+        });
       });
+
+
     }
     console.log('Registration succeeded. Scope is ' + reg.scope);
 
