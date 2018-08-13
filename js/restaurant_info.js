@@ -14,9 +14,44 @@ document.addEventListener('DOMContentLoaded', (event) => {
  */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
-  .then(function(reg) {
-    // registration worked
+  .then((reg) => {
+    if ('sync' in reg) {
+      let form = document.getElementById("comments_form");
+
+      form.addEventListener("submit",(event) => {
+        event.preventDefault();
+
+        let inputName = form["name"].value;
+        let inputRating = form["rating"].value;
+        let inputComments = form["comments"].value;
+        const id = getParameterByName('id');
+  
+        let message = {
+          "restaurant_id": id,
+          "name": inputName,
+          "rating": inputRating,
+          "comments": inputComments
+        }
+
+        console.log(message);
+        
+        idb.open('reviewsToSend', 1, function(upgradeDb) {
+          upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
+        }).then((db) => {
+          var transaction = db.transaction('reviews', 'readwrite');
+          return transaction.objectStore('reviews').put(message);
+        }).then(() => {
+          console.log("synced")
+          return reg.sync.register('reviews');
+        }).catch((err) => {
+          console.error(err); 
+          //form.submit();
+        });
+        form.reset();
+      });
+    }
     console.log('Registration succeeded. Scope is ' + reg.scope);
+
   }).catch(function(error) {
     // registration failed
     console.log('Registration failed with ' + error);
@@ -139,8 +174,15 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 fillReviewsHTML = () => {
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h3');
+
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+  let reviewList = document.getElementById('reviews-list');
+  while(reviewList.hasChildNodes())
+  {
+    reviewList.removeChild(reviewList.lastChild);
+  }
 
   fetchReviews( (error,reviews) => {
     if (error) {
@@ -205,30 +247,3 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
-/**
- * Send the review from the form
- */
-window.addEventListener("load", function () {
-  function sendData() {
-    var XHR = new XMLHttpRequest();
-    var FD = new FormData(form);
-
-    XHR.addEventListener("load", function(event) {
-      alert("Your review has been sent, thank you!");
-      fillReviewsHTML();
-    });
-    XHR.addEventListener("error", function(event) {
-      alert('Oops! Something went wrong, try to resend you review.');
-    });
-
-    XHR.open("POST", "http://localhost:1337/reviews/");
-    XHR.send(FD);
-  }
-
-  var form = document.getElementById("comments_form");
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    sendData();
-  });
-});

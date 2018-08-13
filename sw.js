@@ -1,3 +1,6 @@
+importScripts('/js/idb.js');
+importScripts('/js/dbhelper.js');
+
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open('v1').then(function(cache) {
@@ -39,4 +42,21 @@ self.addEventListener('fetch', function(event) {
       });;
     })
   );
+});
+/**
+ * sync task to send the data once online
+ */
+self.addEventListener('sync', function(event) {
+  idb.open('reviewsToSend', 1, function(upgradeDb) {
+    upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
+  }).then((db) => {
+    let tx = db.transaction('reviews', 'readwrite');
+    let keyValStore = tx.objectStore('reviews')
+    let results = keyValStore.getAll();
+    keyValStore.clear();
+    return results;
+  }).then((results) => {
+    DBHelper.putReview(results);
+    console.log(results);
+  });
 });
