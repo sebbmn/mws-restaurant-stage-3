@@ -1,4 +1,5 @@
 importScripts('/js/idb.js');
+importScripts('/js/dbhelper.js');
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
@@ -55,6 +56,7 @@ self.addEventListener('sync', function(event) {
     keyValStore.clear();
     return results;
   }).then((results) => {
+    DBHelper.putReview(results);
     console.log(results);
   });
 });
