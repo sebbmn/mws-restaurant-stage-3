@@ -120,7 +120,7 @@ class DBHelper {
     });
   }
   /**
-   * Put a review if online, else save it in the store
+   * Put a review
    */
   static putReview(review) {
     let url = "http://localhost:1337/reviews/"

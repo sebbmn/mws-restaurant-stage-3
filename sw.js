@@ -57,6 +57,5 @@ self.addEventListener('sync', function(event) {
     return results;
   }).then((results) => {
     DBHelper.putReview(results);
-    console.log(results);
   });
 });

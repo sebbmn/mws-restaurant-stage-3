@@ -32,8 +32,6 @@ if ('serviceWorker' in navigator) {
           "rating": inputRating,
           "comments": inputComments
         }
-
-        console.log(message);
         
         idb.open('reviewsToSend', 1, function(upgradeDb) {
           upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
@@ -41,11 +39,9 @@ if ('serviceWorker' in navigator) {
           var transaction = db.transaction('reviews', 'readwrite');
           return transaction.objectStore('reviews').put(message);
         }).then(() => {
-          console.log("synced")
           return reg.sync.register('reviews');
         }).catch((err) => {
           console.error(err); 
-          //form.submit();
         });
         form.reset();
       });
@@ -53,7 +49,6 @@ if ('serviceWorker' in navigator) {
     console.log('Registration succeeded. Scope is ' + reg.scope);
 
   }).catch(function(error) {
-    // registration failed
     console.log('Registration failed with ' + error);
   });
 }
