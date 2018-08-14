@@ -325,12 +325,13 @@ textarea {
   margin:auto;
 }
 /*favorite stars form*/
-.is-favorite-true {
-  font-size: 50pt;
-  color: black;
+.favorite {
+  font-size: 28pt;
 }
-.is-favorite-false {
-  font-size: 50pt;
+.favorite:hover {
+  cursor: pointer;
+}
+.activated {
   color: blue;
 }
 
