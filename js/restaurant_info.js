@@ -44,6 +44,8 @@ if ('serviceWorker' in navigator) {
           console.error(err); 
         });
         form.reset();
+        const ul = document.getElementById('reviews-list');
+        ul.appendChild(createReviewHTML(message));
       });
     }
     console.log('Registration succeeded. Scope is ' + reg.scope);

@@ -24,6 +24,7 @@ self.addEventListener('install', function(event) {
         '/js/restaurant_info.js',
         '/index.html',
         '/restaurant.html',
+        '/manifest.json',
         '/'
       ]);
     }).catch(function(err) {
