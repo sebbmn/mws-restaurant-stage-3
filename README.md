@@ -26,7 +26,7 @@ API Server
 2. cd into folder
 3. Install libraries: `npm install`
 
-[more infos about the API server and how to use it](https://github.com/udacity/mws-restaurant-stage-3/README.md)
+[more infos about the API server and how to use it](https://github.com/udacity/mws-restaurant-stage-3)
 
 Frontend
 
@@ -40,7 +40,7 @@ API Server
 1. cd into folder
 2. run: `node server` 
 
-[more infos about the API server and how to use it](https://github.com/udacity/mws-restaurant-stage-3/README.md)
+[more infos about the API server and how to use it](https://github.com/udacity/mws-restaurant-stage-3)
 
 Frontend
 
