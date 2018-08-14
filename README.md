@@ -2,32 +2,49 @@
 ---
 #### _Three Stage Course Material Project - Restaurant Reviews_
 
-## Project ADDENDUM:
+## Project Overview: Stage 3
 
-This repository is using [leafletjs](https://leafletjs.com/) with [Mapbox](https://www.mapbox.com/) jpg tiles optimized with quality:70.
-You need to replace <your MAPBOX API KEY HERE> with token from [Mapbox](https://www.mapbox.com/), and you can check the [pricing](https://www.mapbox.com/pricing/): free and no credit card required.
+This app was built with Html, Css and Javascript on top on the starter code provided, using [leafletjs](https://leafletjs.com/) with [Mapbox](https://www.mapbox.com/) jpg tiles optimized with quality:70.
+This was develloped as the third project for the Udacity's Mobile Web Specialist Nanodegree Program.
 
-## Project Overview: Stage 1
+### Requirements for part 3
+1. Add a form to allow users to create their own reviews.
+2. Add functionality to defer updates until the user is connected.
+Meet the new performance requirements: 
 
-For the **Restaurant Reviews** projects, you will incrementally convert a static webpage to a mobile-ready web application. In **Stage One**, you will take a static design that lacks accessibility and convert the design to be responsive on different sized displays and accessible for screen reader use. You will also add a service worker to begin the process of creating a seamless offline experience for your users.
-
-### Specification
-
-You have been provided the code for a restaurant reviews website. The code has a lot of issues. It’s barely usable on a desktop browser, much less a mobile device. It also doesn’t include any standard accessibility features, and it doesn’t work offline at all. Your job is to update the code to resolve these issues while still maintaining the included functionality. 
-
-### What do I do from here?
-
-1. In this folder, start up a simple HTTP server to serve up the site files on your local computer. Python has some simple tools to do this, and you don't even need to know Python. For most people, it's already installed on your computer. 
-
-In a terminal, check the version of Python you have: `python -V`. If you have Python 2.x, spin up the server with `python -m SimpleHTTPServer 8000` (or some other port, if port 8000 is already in use.) For Python 3.x, you can use `python3 -m http.server 8000`. If you don't have Python installed, navigate to Python's [website](https://www.python.org/) to download and install the software.
-
-2. With your server running, visit the site: `http://localhost:8000`, and look around for a bit to see what the current experience looks like.
-3. Explore the provided code, and make start making a plan to implement the required features in three areas: responsive design, accessibility and offline use.
-4. Write code to implement the updates to get this site on its way to being a mobile-ready website.
-
-### Note about ES6
-
-Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write. 
+- Progressive Web App score should be at 90 or better.
+- Performance score should be at 90 or better.
+- Accessibility score should be at 90 or better.
 
 
 
+## Install
+
+API Server
+
+1. Clone this repository: `git clone https://github.com/udacity/mws-restaurant-stage-3.git`
+2. cd into folder
+3. Install libraries: `npm install`
+
+[more infos about the API server and how to use it](https://github.com/udacity/mws-restaurant-stage-3/README.md)
+
+Frontend
+
+1. Clone this repository: `git clone https://github.com/sebbmn/mws-restaurant-stage-3.git`
+2. cd into folder
+
+## Run
+
+API Server
+
+1. cd into folder
+2. run: `node server` 
+
+[more infos about the API server and how to use it](https://github.com/udacity/mws-restaurant-stage-3/README.md)
+
+Frontend
+
+1. cd into folder
+2.   
+- If you have a Python Interpreter installed:  `python -m SimpleHTTPServer 8000`
+- If you use Visual studio Code, get the [live server extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
