@@ -294,8 +294,8 @@ nav h1 a {
 }
 /*review form*/
 form {
-  margin: 0 auto;
-  width: 100%;
+  margin:auto;
+  width: 80%;
   padding: 1em;
   border: 1px solid #CCC;
   border-radius: 1em;
@@ -307,7 +307,7 @@ label {
 }
 input, textarea {
   font: 1em sans-serif;
-  width: 80%;
+  width: 100%;
   -moz-box-sizing: border-box;
        box-sizing: border-box;
   border: 1px solid #999;
@@ -319,6 +319,10 @@ textarea {
   vertical-align: top;
   height: 5em;
   resize: vertical;
+}
+.button input {
+  width:80px;
+  margin:auto;
 }
 
 @media screen and (max-width: 364px) {
