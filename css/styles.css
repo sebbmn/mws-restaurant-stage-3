@@ -324,6 +324,15 @@ textarea {
   width:80px;
   margin:auto;
 }
+/*favorite stars form*/
+.is-favorite-true {
+  font-size: 50pt;
+  color: black;
+}
+.is-favorite-false {
+  font-size: 50pt;
+  color: blue;
+}
 
 @media screen and (max-width: 364px) {
   #restaurants-list li {
