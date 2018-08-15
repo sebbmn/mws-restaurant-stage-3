@@ -169,6 +169,8 @@ createRestaurantHTML = (restaurant) => {
   favoriteStar.onclick = (e) => {
     e.target.classList.toggle('activated');
   }
+
+  favoriteStar.setAttribute('aria-label', 'favorite star');
   li.append(favoriteStar);
 
   const image = document.createElement('img');
