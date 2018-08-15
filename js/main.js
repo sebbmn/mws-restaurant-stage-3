@@ -167,6 +167,7 @@ createRestaurantHTML = (restaurant) => {
   if(restaurant.is_favorite)favoriteStar.classList.add('activated');
   
   favoriteStar.onclick = (e) => {
+    DBHelper.updateFavoriteStatus(restaurant.id, !restaurant.is_favorite);
     e.target.classList.toggle('activated');
   }
 

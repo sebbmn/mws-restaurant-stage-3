@@ -145,6 +145,22 @@ class DBHelper {
     });
   }
   /**
+   * update the favorite status of a restaurant
+   */
+  static updateFavoriteStatus(restaurantId, status) {
+    let url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${status}`
+    fetch(url, {
+      method: "PUT"
+    })
+    .then((response) => {
+      response.json();
+      console.log("Favorite updated");
+    })
+    .catch((error) => {
+      console.error(`Fetch Error =\n`, error);
+    });
+  }
+  /**
    * Fetch a restaurant by its ID.
    */
   static fetchRestaurantById(id, callback) {
