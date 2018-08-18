@@ -10,47 +10,40 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 /**
+ * Catch the submit event and add the review
+ */
+let form = document.getElementById("comments_form");
+let review_id = 1;
+
+form.addEventListener("submit",(event) => {
+  event.preventDefault();
+
+  let inputName = form["name"].value;
+  let inputRating = form["rating"].value;
+  let inputComments = form["comments"].value;
+  const id = getParameterByName('id');
+
+  let review = {
+    "id": review_id++,
+    "restaurant_id": id,
+    "name": inputName,
+    "rating": inputRating,
+    "comments": inputComments
+  }
+
+  console.log(review)
+});
+
+/**
  * Register a service worker if the browser support it
  */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
-  .then((reg) => {
-    if ('sync' in reg) {
-      let form = document.getElementById("comments_form");
-
-      form.addEventListener("submit",(event) => {
-        event.preventDefault();
-
-        let inputName = form["name"].value;
-        let inputRating = form["rating"].value;
-        let inputComments = form["comments"].value;
-        const id = getParameterByName('id');
-  
-        let message = {
-          "restaurant_id": id,
-          "name": inputName,
-          "rating": inputRating,
-          "comments": inputComments
-        }
-        
-        idb.open('reviewsToSend', 1, function(upgradeDb) {
-          upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
-        }).then((db) => {
-          var transaction = db.transaction('reviews', 'readwrite');
-          return transaction.objectStore('reviews').put(message);
-        }).then(() => {
-          return reg.sync.register('reviews');
-        }).catch((err) => {
-          console.error(err); 
-        });
-        form.reset();
-        const ul = document.getElementById('reviews-list');
-        ul.appendChild(createReviewHTML(message));
-      });
-    }
+  .then(function(reg) {
+    // registration worked
     console.log('Registration succeeded. Scope is ' + reg.scope);
-
   }).catch(function(error) {
+    // registration failed
     console.log('Registration failed with ' + error);
   });
 }
