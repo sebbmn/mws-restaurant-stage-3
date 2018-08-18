@@ -8,6 +8,11 @@ var newMap;
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
 });
+/**
+ * Check if we are online
+ */
+window.addEventListener('offline', function(e) { console.log('offline'); });
+window.addEventListener('online', function(e) { console.log('online'); });
 
 /**
  * Catch the submit event and add the review
