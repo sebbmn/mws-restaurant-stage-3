@@ -35,33 +35,47 @@ class DBHelper {
   }
 
   /**
-   * Add a record in an Objectstore
+   * Add a record or an array of records in an Objectstore
    */
-  static addIdbRecord(db, objectStoreName) {
-    const tx = db.transaction (objectStoreName, 'readwrite');
-    let keyValStore = tx.objectStore(objectStoreName);
+  static addIdbRecords(db, objectStoreName, records, record, keyValStore=null) {
+    if(keyValStore==null) {
+      const tx = db.transaction (objectStoreName, 'readwrite');
+      keyValStore = tx.objectStore(objectStoreName);
+    }
 
-    return;
+    if(records) {
+      records.forEach((record) => {
+        keyValStore.put(record);
+      })
+    } else if (record) {
+      keyValStore.put(record);
+    }
+    //to chain the promises
+    return keyValStore;
   }
 
   /**
    * Get all the record of an Objectstore
    */
-  static getAllIdbRecords(db, objectStoreName) {
-    const tx = db.transaction (objectStoreName, 'readwrite');
-    let keyValStore = tx.objectStore(objectStoreName);
-
-    return;
+  static getAllIdbRecords(db, objectStoreName, keyValStore=null) {
+    if(keyValStore==null) {
+      const tx = db.transaction (objectStoreName, 'readwrite');
+      keyValStore = tx.objectStore(objectStoreName);
+    }
+    return keyValStore.getAll();
   }
 
   /**
    * Clear all records
    */
-  static clearAllIdbRecords(db, objectStoreName) {
-    const tx = db.transaction (objectStoreName, 'readwrite');
-    let keyValStore = tx.objectStore(objectStoreName);
+  static clearAllIdbRecords(db, objectStoreName, keyValStore=null) {
+    if(keyValStore==null) {
+      const tx = db.transaction (objectStoreName, 'readwrite');
+      keyValStore = tx.objectStore(objectStoreName);
+    }
 
-    return;
+    keyValStore.clear();
+    return keyValStore;
   }
 
   /**
@@ -76,13 +90,10 @@ class DBHelper {
       })
       .then((response) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('restaurants', 'readwrite');
-          let keyValStore = tx.objectStore('restaurants')
-
-          response.forEach((restaurant) =>{
-            keyValStore.put(restaurant);
-          })
-          return keyValStore.getAll();
+          return DBHelper.addIdbRecords(db,'restaurants',response)
+          .then((keyValStore) => {
+            return DBHelper.getAllIdbRecords(keyValStore);
+          });
         })
       })
       .then((response) => {
@@ -90,9 +101,7 @@ class DBHelper {
       })
       .catch((error) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('restaurants', 'readwrite');
-          let keyValStore = tx.objectStore('restaurants')
-          return keyValStore.getAll();
+          return DBHelper.getAllIdbRecords(db,'restaurants');
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
