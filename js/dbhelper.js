@@ -21,17 +21,54 @@ class DBHelper {
   }
 
   /**
-   * Fetch all restaurants.
+   * IDB access method
    */
-  static fetchRestaurants(callback) {
-    const dbPromise = idb.open('restaurantsDB', 1, upgradeDB => {
+  static getIdbPromise(dbName, objectStoreName, key) {
+    return idb.open(dbName, 1, upgradeDB => {
       switch (upgradeDB.oldVersion){
         case 0:
-        upgradeDB.createObjectStore('restaurants', {
-          keyPath: 'id'
+        upgradeDB.createObjectStore(objectStoreName, {
+          keyPath: key
         });
       }
     })
+  }
+
+  /**
+   * Add a record in an Objectstore
+   */
+  static addIdbRecord(db, objectStoreName) {
+    const tx = db.transaction (objectStoreName, 'readwrite');
+    let keyValStore = tx.objectStore(objectStoreName);
+
+    return;
+  }
+
+  /**
+   * Get all the record of an Objectstore
+   */
+  static getAllIdbRecords(db, objectStoreName) {
+    const tx = db.transaction (objectStoreName, 'readwrite');
+    let keyValStore = tx.objectStore(objectStoreName);
+
+    return;
+  }
+
+  /**
+   * Clear all records
+   */
+  static clearAllIdbRecords(db, objectStoreName) {
+    const tx = db.transaction (objectStoreName, 'readwrite');
+    let keyValStore = tx.objectStore(objectStoreName);
+
+    return;
+  }
+
+  /**
+   * Fetch all restaurants.
+   */
+  static fetchRestaurants(callback) {
+    const dbPromise = DBHelper.getIdbPromise('restaurantsIDB','restaurants','id');
 
     fetch(DBHelper.DATABASE_URL)
       .then((response) => {
@@ -68,14 +105,7 @@ class DBHelper {
    * Fetch all reviews for a restaurant.
    */
   static fetchReviews(id, callback) {
-    const dbPromise = idb.open('reviewsDB', 1, upgradeDB => {
-      switch (upgradeDB.oldVersion){
-        case 0:
-        upgradeDB.createObjectStore('reviews', {
-          keyPath: 'id'
-        });
-      }
-    })
+    const dbPromise = DBHelper.getIdbPromise('reviewsIDB','reviews','id');
 
     fetch(DBHelper.REVIEWS_DATABASE_URL+id)
       .then((response) => {
