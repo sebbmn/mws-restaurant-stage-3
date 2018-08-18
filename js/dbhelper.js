@@ -122,19 +122,15 @@ class DBHelper {
       })
       .then((response) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('reviews', 'readwrite');
-          let keyValStore = tx.objectStore('reviews')
-          keyValStore.clear();
-
-          response.forEach((review) =>{
-            keyValStore.put(review);
-          })
-          let result = keyValStore.getAll().then((response) => {
-            return response.filter( (review) => {
-              return review.restaurant_id == id;
+          return DBHelper.addIdbRecords(db,'reviews',response)
+          .then((keyValStore) => {
+            return DBHelper.getAllIdbRecords(keyValStore)
+            .then((response) => {
+              return response.filter( (review) => {
+                return review.restaurant_id == id;
+              });
             });
           });
-          return result;
         })
       })
       .then((response) => {
@@ -142,15 +138,12 @@ class DBHelper {
       })
       .catch((error) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('reviews', 'readwrite');
-          let keyValStore = tx.objectStore('reviews')
-
-          let result = keyValStore.getAll().then((response) => {
+          return DBHelper.getAllIdbRecords(db,'reviews')
+          .then((response) => {
             return response.filter( (review) => {
               return review.restaurant_id == id;
             });
           });
-          return result;
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
@@ -158,6 +151,7 @@ class DBHelper {
         });
     });
   }
+  
   /**
    * Put a review
    */
