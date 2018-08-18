@@ -24,14 +24,16 @@ form.addEventListener("submit",(event) => {
   const id = getParameterByName('id');
 
   let review = {
-    "id": review_id++,
-    "restaurant_id": id,
-    "name": inputName,
-    "rating": inputRating,
-    "comments": inputComments
+    id: review_id++,
+    restaurant_id: id,
+    name: inputName,
+    rating: inputRating,
+    comments: inputComments
   }
 
-  console.log(review)
+  console.log(review);
+  DBHelper.addReview(review);
+  form.reset();
 });
 
 /**

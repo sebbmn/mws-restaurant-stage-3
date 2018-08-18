@@ -19,6 +19,13 @@ class DBHelper {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/reviews/?restaurant_id=`;
   }
+  /**
+   * POST Reviews Database URL.
+   */
+  static get POST_REVIEWS_DATABASE_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews/`;
+  }
 
   /**
    * IDB access method
@@ -151,32 +158,46 @@ class DBHelper {
         });
     });
   }
-  
+
   /**
    * Put a review
    */
-  static putReview(review) {
-    let url = "http://localhost:1337/reviews/"
-    fetch(url, {
+  static addReview(review) {
+    const dbPromise = DBHelper.getIdbPromise('awaitingReviewsIDB','reviews','id');
+
+    let reviewTosend = {
+      restaurant_id: review.restaurant_id,
+      name: review.name,
+      rating: review.rating,
+      comments: review.comments
+    };
+    let reviewTostore = review;
+
+    fetch(DBHelper.POST_REVIEWS_DATABASE_URL, {
       method: "POST", 
-      mode: "cors",
-      cache: "no-cache",
-      credentials: "same-origin",
       headers: {
           "Content-Type": "application/json; charset=utf-8",
       },
-      redirect: "follow",
-      referrer: "no-referrer",
-      body: JSON.stringify(review),
+      body: JSON.stringify(reviewTosend),
     })
     .then((response) => {
       response.json()
-      console.log("review posted");
+      console.log("review posted",reviewTosend);
     }) // parses response to JSON
     .catch((error) => {
-      console.error(`Fetch Error =\n`, error);
+      console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
+      dbPromise.then(db => {
+        DBHelper.addIdbRecords(db,'reviews',null,review);
+      })
     });
   }
+  /**
+   * send all the records and flush the awaitings DBs
+   */
+  static sendAwaitingRecords() {
+    console.log("back online, we'll send all the stuff!")
+  } 
+
   /**
    * update the favorite status of a restaurant
    */
@@ -193,6 +214,7 @@ class DBHelper {
       console.error(`Fetch Error =\n`, error);
     });
   }
+
   /**
    * Fetch a restaurant by its ID.
    */
