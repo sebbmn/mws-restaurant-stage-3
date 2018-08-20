@@ -1,6 +1,20 @@
 let restaurant;
 let reviews;
-var newMap;
+let newMap;
+
+/**
+ * Register a service worker if the browser support it
+ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+  .then(function(reg) {
+    // registration worked
+    console.log('Registration succeeded. Scope is ' + reg.scope);
+  }).catch(function(error) {
+    // registration failed
+    console.log('Registration failed with ' + error);
+  });
+}
 
 /**
  * Initialize map as soon as the page is loaded.
@@ -14,6 +28,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
 window.addEventListener('offline', function(e) { 
   console.log("offline, be right back")
 });
+
+/**
+ * When back online, send what is in the store
+ */
 window.addEventListener('online', function(e) { 
   DBHelper.sendAwaitingRecords();
 });
@@ -22,7 +40,7 @@ window.addEventListener('online', function(e) {
  * Catch the submit event and add the review
  */
 let form = document.getElementById("comments_form");
-let review_id = 10000;
+let review_id = 999;
 
 form.addEventListener("submit",(event) => {
   event.preventDefault();
@@ -45,19 +63,6 @@ form.addEventListener("submit",(event) => {
   form.reset();
 });
 
-/**
- * Register a service worker if the browser support it
- */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-  .then(function(reg) {
-    // registration worked
-    console.log('Registration succeeded. Scope is ' + reg.scope);
-  }).catch(function(error) {
-    // registration failed
-    console.log('Registration failed with ' + error);
-  });
-}
 /**
  * Initialize map as soon as the page is loaded.
  */

@@ -168,8 +168,15 @@ class DBHelper {
    * Put a review
    */
   static addReview(review) {
-    const dbPromise = DBHelper.getIdbPromise('awaitingReviewsIDB','reviews','id');
+    const dbStorePromise = DBHelper.getIdbPromise('storeReviewsIDB','reviews','id');
+    const dbPromise = DBHelper.getIdbPromise('reviewsIDB','reviews','id');
 
+    //first, add the review to IDB
+    dbPromise.then(db => {
+      DBHelper.addIdbRecords(db,'reviews',null,review);
+    });
+
+    //then try to fetch, or store it when offline
     let reviewTosend = {
       restaurant_id: review.restaurant_id,
       name: review.name,
@@ -190,9 +197,9 @@ class DBHelper {
     }) // parses response to JSON
     .catch((error) => {
       console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
-      dbPromise.then(db => {
+      dbStorePromise.then(db => {
         DBHelper.addIdbRecords(db,'reviews',null,review);
-      })
+      });
     });
   }
 
@@ -228,7 +235,7 @@ class DBHelper {
    */
   static sendAwaitingRecords() {
     console.log("back online, we'll send all the stuff!")
-    const dbPromise = DBHelper.getIdbPromise('awaitingReviewsIDB','reviews','id');
+    const dbPromise = DBHelper.getIdbPromise('storeReviewsIDB','reviews','id');
 
     dbPromise.then(db => {
       return DBHelper.getAllIdbRecords(db,'reviews')
