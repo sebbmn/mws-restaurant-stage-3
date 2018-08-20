@@ -173,6 +173,7 @@ class DBHelper {
 
     //first, add the review to IDB
     dbPromise.then(db => {
+      console.log("add the review to IDB");
       DBHelper.addIdbRecords(db,'reviews',null,review);
     });
 
@@ -193,7 +194,7 @@ class DBHelper {
     })
     .then((response) => {
       response.json()
-      console.log("review posted",reviewTosend);
+      //console.log("review posted",reviewTosend);
     }) // parses response to JSON
     .catch((error) => {
       console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);

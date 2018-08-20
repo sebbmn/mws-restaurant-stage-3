@@ -1,6 +1,6 @@
 let restaurant;
 let reviews;
-let newMap;
+var newMap;
 
 /**
  * Register a service worker if the browser support it
@@ -58,9 +58,12 @@ form.addEventListener("submit",(event) => {
     comments: inputComments
   }
 
-  console.log(review);
   DBHelper.addReview(review);
   form.reset();
+
+  let createdAt = {createdAt: Date.now()};
+  const ul = document.getElementById('reviews-list');
+  ul.appendChild(createReviewHTML({...review,...createdAt}));
 });
 
 /**
