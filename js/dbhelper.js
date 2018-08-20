@@ -193,9 +193,11 @@ class DBHelper {
       body: JSON.stringify(reviewTosend),
     })
     .then((response) => {
-      response.json()
-      //console.log("review posted",reviewTosend);
-    }) // parses response to JSON
+      response.json();
+      dbStorePromise.then(db => {
+        DBHelper.clearAllIdbRecords(db,'reviews');
+      });
+    })
     .catch((error) => {
       console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
       dbStorePromise.then(db => {
@@ -209,7 +211,7 @@ class DBHelper {
    */
   static updateFavoriteStatus(restaurantId, newStatus) {
     let url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${newStatus}`
-    const dbPromise = DBHelper.getIdbPromise('awaitingStatusUpdateIDB','favorite','id');
+    const dbPromise = DBHelper.getIdbPromise('storeStatusIDB','favorite','id');
 
     let statusUpdate = {
       id: restaurantId,
@@ -222,6 +224,9 @@ class DBHelper {
     .then((response) => {
       response.json();
       console.log("Favorite updated", response);
+      dbPromise.then(db => {
+        DBHelper.clearAllIdbRecords(db,'favorite');
+      });
     })
     .catch((error) => {
       console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
@@ -236,18 +241,26 @@ class DBHelper {
    */
   static sendAwaitingRecords() {
     console.log("back online, we'll send all the stuff!")
-    const dbPromise = DBHelper.getIdbPromise('storeReviewsIDB','reviews','id');
+    const dbReviewPromise = DBHelper.getIdbPromise('storeReviewsIDB','reviews','id');
+    const dbStatusPromise = DBHelper.getIdbPromise('storeStatusIDB','favorite','id');
 
-    dbPromise.then(db => {
+    dbReviewPromise.then(db => {
       return DBHelper.getAllIdbRecords(db,'reviews')
       .then((response) => {
         response.forEach((review) => {
           DBHelper.addReview(review);
         })
       })
-      .then(() => {
-        DBHelper.clearAllIdbRecords(db,'reviews');
-      });
+    });
+
+    dbStatusPromise.then(db => {
+      return DBHelper.getAllIdbRecords(db,'favorite')
+      .then((response) => {
+        response.forEach((status) => {
+          console.log(status);
+          DBHelper.updateFavoriteStatus(status.id,status.status);
+        })
+      })
     });
   } 
 

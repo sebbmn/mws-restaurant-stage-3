@@ -27,6 +27,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 /**
+ * Check if we are online
+ */
+window.addEventListener('offline', function(e) { 
+  console.log("offline, be right back")
+});
+
+/**
+ * When back online, send what is in the store
+ */
+window.addEventListener('online', function(e) { 
+  DBHelper.sendAwaitingRecords();
+});
+
+/**
  * Fetch all neighborhoods and set their HTML.
  */
 fetchNeighborhoods = () => {
@@ -166,15 +180,12 @@ createRestaurantHTML = (restaurant) => {
   favoriteStar.innerHTML = '&#9733;';
   favoriteStar.className = 'favorite';
 
-  console.log(restaurant.name, is_favorite)
   if(is_favorite) {
-    //console.log(restaurant.name, is_favorite)
     favoriteStar.classList.add('activated');
   }
-  //console.log(restaurant.name, is_favorite)
+
   favoriteStar.onclick = (e) => {
     is_favorite = !is_favorite;
-    console.log(restaurant.name, is_favorite)
 
     DBHelper.updateFavoriteStatus(restaurant.id, is_favorite);
     e.target.classList.toggle('activated');

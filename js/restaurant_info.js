@@ -22,6 +22,7 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', (event) => {  
   initMap();
 });
+
 /**
  * Check if we are online
  */
