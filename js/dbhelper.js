@@ -191,6 +191,34 @@ class DBHelper {
       })
     });
   }
+
+    /**
+   * update the favorite status of a restaurant
+   */
+  static updateFavoriteStatus(restaurantId, newStatus) {
+    let url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${newStatus}`
+    const dbPromise = DBHelper.getIdbPromise('awaitingStatusUpdateIDB','favorite','id');
+
+    let statusUpdate = {
+      id: restaurantId,
+      status: newStatus
+    }
+
+    fetch(url, {
+      method: "PUT"
+    })
+    .then((response) => {
+      response.json();
+      console.log("Favorite updated", response);
+    })
+    .catch((error) => {
+      console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
+      dbPromise.then(db => {
+        DBHelper.addIdbRecords(db,'favorite',null,statusUpdate);
+      })
+    });
+  }
+
   /**
    * send all the records and flush the awaitings DBs
    */
@@ -198,22 +226,7 @@ class DBHelper {
     console.log("back online, we'll send all the stuff!")
   } 
 
-  /**
-   * update the favorite status of a restaurant
-   */
-  static updateFavoriteStatus(restaurantId, status) {
-    let url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${status}`
-    fetch(url, {
-      method: "PUT"
-    })
-    .then((response) => {
-      response.json();
-      console.log("Favorite updated");
-    })
-    .catch((error) => {
-      console.error(`Fetch Error =\n`, error);
-    });
-  }
+
 
   /**
    * Fetch a restaurant by its ID.

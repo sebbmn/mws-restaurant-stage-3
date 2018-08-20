@@ -160,14 +160,21 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  */
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
+  let is_favorite = restaurant.is_favorite;
 
   const favoriteStar = document.createElement('div');
   favoriteStar.innerHTML = '&#9733;';
   favoriteStar.className = 'favorite';
-  if(restaurant.is_favorite)favoriteStar.classList.add('activated');
-  
+
+  if(is_favorite===true) {
+    console.log(restaurant.name, is_favorite)
+    favoriteStar.classList.add('activated');
+  }
+  //console.log(restaurant.name, is_favorite)
   favoriteStar.onclick = (e) => {
-    DBHelper.updateFavoriteStatus(restaurant.id, !restaurant.is_favorite);
+    console.log(restaurant.name, is_favorite)
+    console.log(restaurant.name, !is_favorite)
+    DBHelper.updateFavoriteStatus(restaurant.id, !is_favorite);
     e.target.classList.toggle('activated');
   }
 
