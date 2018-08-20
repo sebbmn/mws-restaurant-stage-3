@@ -80,7 +80,7 @@ class DBHelper {
       const tx = db.transaction (objectStoreName, 'readwrite');
       keyValStore = tx.objectStore(objectStoreName);
     }
-
+    console.log(keyValStore)
     keyValStore.clear();
     return keyValStore;
   }
@@ -122,6 +122,7 @@ class DBHelper {
    */
   static fetchReviews(id, callback) {
     const dbPromise = DBHelper.getIdbPromise('reviewsIDB','reviews','id');
+    DBHelper.clearAllIdbRecords
 
     fetch(DBHelper.REVIEWS_DATABASE_URL+id)
       .then((response) => {
@@ -171,7 +172,6 @@ class DBHelper {
       rating: review.rating,
       comments: review.comments
     };
-    let reviewTostore = review;
 
     fetch(DBHelper.POST_REVIEWS_DATABASE_URL, {
       method: "POST", 
@@ -224,6 +224,19 @@ class DBHelper {
    */
   static sendAwaitingRecords() {
     console.log("back online, we'll send all the stuff!")
+    const dbPromise = DBHelper.getIdbPromise('awaitingReviewsIDB','reviews','id');
+
+    dbPromise.then(db => {
+      return DBHelper.getAllIdbRecords(db,'reviews')
+      .then((response) => {
+        response.forEach((review) => {
+          DBHelper.addReview(review);
+        })
+      })
+      .then(() => {
+        DBHelper.clearAllIdbRecords(db,'reviews');
+      });
+    });
   } 
 
 

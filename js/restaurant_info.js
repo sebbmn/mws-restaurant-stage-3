@@ -11,14 +11,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
 /**
  * Check if we are online
  */
-window.addEventListener('offline', function(e) { console.log('offline'); });
-window.addEventListener('online', function(e) { console.log('online'); });
+window.addEventListener('offline', function(e) { 
+  console.log("offline, be right back")
+});
+window.addEventListener('online', function(e) { 
+  DBHelper.sendAwaitingRecords();
+});
 
 /**
  * Catch the submit event and add the review
  */
 let form = document.getElementById("comments_form");
-let review_id = 1;
+let review_id = 10000;
 
 form.addEventListener("submit",(event) => {
   event.preventDefault();
