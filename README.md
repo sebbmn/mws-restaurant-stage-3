@@ -4,8 +4,8 @@
 
 ## Project Overview: Stage 3
 
-This app was built with Html, Css and Javascript on top on the starter code provided, using [leafletjs](https://leafletjs.com/) with [Mapbox](https://www.mapbox.com/) jpg tiles optimized with quality:70.
-This was develloped as the third project for the Udacity's Mobile Web Specialist Nanodegree Program.
+This app was built with Html, Css and Javascript on top on the starter code provided, using [leafletjs](https://leafletjs.com/) with [Mapbox](https://www.mapbox.com/) jpg tiles, as well as the [idb library](https://github.com/jakearchibald/idb) provided by Jack Archibald during this course.
+This is the third project for the Udacity's Mobile Web Specialist Nanodegree Program.
 
 ### Requirements for part 3
 1. Add a form to allow users to create their own reviews.
