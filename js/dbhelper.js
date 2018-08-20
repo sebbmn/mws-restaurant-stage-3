@@ -19,19 +19,77 @@ class DBHelper {
     const port = 1337; // Change this to your server port
     return `http://localhost:${port}/reviews/?restaurant_id=`;
   }
+  /**
+   * POST Reviews Database URL.
+   */
+  static get POST_REVIEWS_DATABASE_URL() {
+    const port = 1337; // Change this to your server port
+    return `http://localhost:${port}/reviews/`;
+  }
+
+  /**
+   * IDB access method
+   */
+  static getIdbPromise(dbName, objectStoreName, key) {
+    return idb.open(dbName, 1, upgradeDB => {
+      switch (upgradeDB.oldVersion){
+        case 0:
+        upgradeDB.createObjectStore(objectStoreName, {
+          keyPath: key
+        });
+      }
+    })
+  }
+
+  /**
+   * Add a record or an array of records in an Objectstore
+   */
+  static addIdbRecords(db, objectStoreName, records, record, keyValStore=null) {
+    if(keyValStore==null) {
+      const tx = db.transaction (objectStoreName, 'readwrite');
+      keyValStore = tx.objectStore(objectStoreName);
+    }
+
+    if(records) {
+      records.forEach((record) => {
+        keyValStore.put(record);
+      })
+    } else if (record) {
+      keyValStore.put(record);
+    }
+    //to chain the promises
+    return keyValStore;
+  }
+
+  /**
+   * Get all the record of an Objectstore
+   */
+  static getAllIdbRecords(db, objectStoreName, keyValStore=null) {
+    if(keyValStore==null) {
+      const tx = db.transaction (objectStoreName, 'readwrite');
+      keyValStore = tx.objectStore(objectStoreName);
+    }
+    return keyValStore.getAll();
+  }
+
+  /**
+   * Clear all records
+   */
+  static clearAllIdbRecords(db, objectStoreName, keyValStore=null) {
+    if(keyValStore==null) {
+      const tx = db.transaction (objectStoreName, 'readwrite');
+      keyValStore = tx.objectStore(objectStoreName);
+    }
+    
+    keyValStore.clear();
+    return keyValStore;
+  }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    const dbPromise = idb.open('restaurantsDB', 1, upgradeDB => {
-      switch (upgradeDB.oldVersion){
-        case 0:
-        upgradeDB.createObjectStore('restaurants', {
-          keyPath: 'id'
-        });
-      }
-    })
+    const dbPromise = DBHelper.getIdbPromise('restaurantsIDB','restaurants','id');
 
     fetch(DBHelper.DATABASE_URL)
       .then((response) => {
@@ -39,13 +97,12 @@ class DBHelper {
       })
       .then((response) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('restaurants', 'readwrite');
-          let keyValStore = tx.objectStore('restaurants')
+          DBHelper.clearAllIdbRecords(db,'restaurants');
 
-          response.forEach((restaurant) =>{
-            keyValStore.put(restaurant);
-          })
-          return keyValStore.getAll();
+          return DBHelper.addIdbRecords(db,'restaurants',response)
+          .then((keyValStore) => {
+            return DBHelper.getAllIdbRecords(keyValStore);
+          });
         })
       })
       .then((response) => {
@@ -53,9 +110,7 @@ class DBHelper {
       })
       .catch((error) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('restaurants', 'readwrite');
-          let keyValStore = tx.objectStore('restaurants')
-          return keyValStore.getAll();
+          return DBHelper.getAllIdbRecords(db,'restaurants');
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
@@ -68,14 +123,8 @@ class DBHelper {
    * Fetch all reviews for a restaurant.
    */
   static fetchReviews(id, callback) {
-    const dbPromise = idb.open('reviewsDB', 1, upgradeDB => {
-      switch (upgradeDB.oldVersion){
-        case 0:
-        upgradeDB.createObjectStore('reviews', {
-          keyPath: 'id'
-        });
-      }
-    })
+    const dbPromise = DBHelper.getIdbPromise('reviewsIDB','reviews','id');
+    DBHelper.clearAllIdbRecords
 
     fetch(DBHelper.REVIEWS_DATABASE_URL+id)
       .then((response) => {
@@ -83,19 +132,17 @@ class DBHelper {
       })
       .then((response) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('reviews', 'readwrite');
-          let keyValStore = tx.objectStore('reviews')
-          keyValStore.clear();
+          DBHelper.clearAllIdbRecords(db,'reviews');
 
-          response.forEach((review) =>{
-            keyValStore.put(review);
-          })
-          let result = keyValStore.getAll().then((response) => {
-            return response.filter( (review) => {
-              return review.restaurant_id == id;
+          return DBHelper.addIdbRecords(db,'reviews',response)
+          .then((keyValStore) => {
+            return DBHelper.getAllIdbRecords(keyValStore)
+            .then((response) => {
+              return response.filter( (review) => {
+                return review.restaurant_id == id;
+              });
             });
           });
-          return result;
         })
       })
       .then((response) => {
@@ -103,15 +150,12 @@ class DBHelper {
       })
       .catch((error) => {
         return dbPromise.then(db => {
-          const tx = db.transaction ('reviews', 'readwrite');
-          let keyValStore = tx.objectStore('reviews')
-
-          let result = keyValStore.getAll().then((response) => {
+          return DBHelper.getAllIdbRecords(db,'reviews')
+          .then((response) => {
             return response.filter( (review) => {
               return review.restaurant_id == id;
             });
           });
-          return result;
         }).then((response) => {
           callback(null, response);
         }).catch((e) => {
@@ -119,31 +163,106 @@ class DBHelper {
         });
     });
   }
+
   /**
    * Put a review
    */
-  static putReview(review) {
-    let url = "http://localhost:1337/reviews/"
-    fetch(url, {
+  static addReview(review) {
+    const dbStorePromise = DBHelper.getIdbPromise('storeReviewsIDB','reviews','id');
+    const dbPromise = DBHelper.getIdbPromise('reviewsIDB','reviews','id');
+
+    //first, add the review to IDB
+    dbPromise.then(db => {
+      DBHelper.addIdbRecords(db,'reviews',null,review);
+    });
+
+    //then try to fetch, or store it when offline
+    let reviewTosend = {
+      restaurant_id: review.restaurant_id,
+      name: review.name,
+      rating: review.rating,
+      comments: review.comments
+    };
+
+    fetch(DBHelper.POST_REVIEWS_DATABASE_URL, {
       method: "POST", 
-      mode: "cors",
-      cache: "no-cache",
-      credentials: "same-origin",
       headers: {
           "Content-Type": "application/json; charset=utf-8",
       },
-      redirect: "follow",
-      referrer: "no-referrer",
-      body: JSON.stringify(review),
+      body: JSON.stringify(reviewTosend),
     })
     .then((response) => {
-      response.json()
-      console.log("review posted");
-    }) // parses response to JSON
+      response.json();
+      dbStorePromise.then(db => {
+        DBHelper.clearAllIdbRecords(db,'reviews');
+      });
+    })
     .catch((error) => {
-      console.error(`Fetch Error =\n`, error);
+      console.error(`Unable to add a review, store the data locally. Fetch Error =\n`, error);
+      dbStorePromise.then(db => {
+        DBHelper.addIdbRecords(db,'reviews',null,review);
+      });
     });
   }
+
+    /**
+   * update the favorite status of a restaurant
+   */
+  static updateFavoriteStatus(restaurantId, newStatus) {
+    let url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${newStatus}`
+    const dbPromise = DBHelper.getIdbPromise('storeStatusIDB','favorite','id');
+
+    let statusUpdate = {
+      id: restaurantId,
+      status: newStatus
+    }
+
+    fetch(url, {
+      method: "PUT"
+    })
+    .then((response) => {
+      response.json();
+      dbPromise.then(db => {
+        DBHelper.clearAllIdbRecords(db,'favorite');
+      });
+    })
+    .catch((error) => {
+      console.error(`Unable to update the status, store the data locally. Fetch Error =\n`, error);
+      dbPromise.then(db => {
+        DBHelper.addIdbRecords(db,'favorite',null,statusUpdate);
+      })
+    });
+  }
+
+  /**
+   * send all the records
+   */
+  static sendAwaitingRecords() {
+    console.log("back online, we'll send all the stuff!")
+    const dbReviewPromise = DBHelper.getIdbPromise('storeReviewsIDB','reviews','id');
+    const dbStatusPromise = DBHelper.getIdbPromise('storeStatusIDB','favorite','id');
+
+    dbReviewPromise.then(db => {
+      return DBHelper.getAllIdbRecords(db,'reviews')
+      .then((response) => {
+        response.forEach((review) => {
+          DBHelper.addReview(review);
+        })
+      })
+    });
+
+    dbStatusPromise.then(db => {
+      return DBHelper.getAllIdbRecords(db,'favorite')
+      .then((response) => {
+        response.forEach((status) => {
+          DBHelper.updateFavoriteStatus(status.id,status.status);
+        })
+      })
+    });
+  } 
+
+
+
   /**
    * Fetch a restaurant by its ID.
    */

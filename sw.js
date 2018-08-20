@@ -34,13 +34,19 @@ self.addEventListener('install', function(event) {
 });
 self.addEventListener('fetch', function(event) {
   event.respondWith(
-    caches.match(event.request).then(function(response) {
-      return response || fetch(event.request).then(function(response) {
-        return caches.open('v1').then(function(cache) {
-          cache.put(event.request, response.clone());
+    caches.match(event.request)
+    .then(function(response) {
+      return response || fetch(event.request)
+      .then(function(response) {
+        return caches.open('v1')
+        .then(function(cache) {
+          cache.put(event.request, response.clone())
+          .catch((error) => {
+            console.log(error);
+          });
           return response;
-        });  
-      });;
+        })
+      });
     })
   );
 });
@@ -48,15 +54,4 @@ self.addEventListener('fetch', function(event) {
  * sync task to send the data once online
  */
 self.addEventListener('sync', function(event) {
-  idb.open('reviewsToSend', 1, function(upgradeDb) {
-    upgradeDb.createObjectStore('reviews', { autoIncrement : true, keyPath: 'restaurant_id' });
-  }).then((db) => {
-    let tx = db.transaction('reviews', 'readwrite');
-    let keyValStore = tx.objectStore('reviews')
-    let results = keyValStore.getAll();
-    keyValStore.clear();
-    return results;
-  }).then((results) => {
-    DBHelper.putReview(results);
-  });
 });

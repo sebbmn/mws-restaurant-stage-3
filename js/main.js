@@ -27,6 +27,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 /**
+ * Check if we are online
+ */
+window.addEventListener('offline', function(e) { 
+  console.log("offline, be right back")
+});
+
+/**
+ * When back online, send what is in the store
+ */
+window.addEventListener('online', function(e) { 
+  DBHelper.sendAwaitingRecords();
+});
+
+/**
  * Fetch all neighborhoods and set their HTML.
  */
 fetchNeighborhoods = () => {
@@ -160,15 +174,24 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  */
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
+  let is_favorite = restaurant.is_favorite == "true" ? true : false;
 
   const favoriteStar = document.createElement('div');
   favoriteStar.innerHTML = '&#9733;';
   favoriteStar.className = 'favorite';
-  if(restaurant.is_favorite)favoriteStar.classList.add('activated');
-  
+
+  if(is_favorite) {
+    favoriteStar.classList.add('activated');
+  }
+
   favoriteStar.onclick = (e) => {
+    is_favorite = !is_favorite;
+
+    DBHelper.updateFavoriteStatus(restaurant.id, is_favorite);
     e.target.classList.toggle('activated');
   }
+
+  favoriteStar.setAttribute('aria-label', 'favorite star');
   li.append(favoriteStar);
 
   const image = document.createElement('img');
@@ -192,6 +215,8 @@ createRestaurantHTML = (restaurant) => {
   const more = document.createElement('a');
   more.innerHTML = 'View Details';
   more.href = DBHelper.urlForRestaurant(restaurant);
+  more.setAttribute('aria-label', 'View Details of '+restaurant.name);
+  more.setAttribute('role', 'button');
   li.append(more);
 
   return li
