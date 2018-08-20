@@ -80,7 +80,7 @@ class DBHelper {
       const tx = db.transaction (objectStoreName, 'readwrite');
       keyValStore = tx.objectStore(objectStoreName);
     }
-    console.log(keyValStore)
+    
     keyValStore.clear();
     return keyValStore;
   }
@@ -97,6 +97,8 @@ class DBHelper {
       })
       .then((response) => {
         return dbPromise.then(db => {
+          DBHelper.clearAllIdbRecords(db,'restaurants');
+
           return DBHelper.addIdbRecords(db,'restaurants',response)
           .then((keyValStore) => {
             return DBHelper.getAllIdbRecords(keyValStore);
@@ -130,6 +132,8 @@ class DBHelper {
       })
       .then((response) => {
         return dbPromise.then(db => {
+          DBHelper.clearAllIdbRecords(db,'reviews');
+
           return DBHelper.addIdbRecords(db,'reviews',response)
           .then((keyValStore) => {
             return DBHelper.getAllIdbRecords(keyValStore)
