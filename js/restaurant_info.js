@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
  * Check if we are online
  */
 window.addEventListener('offline', function(e) { 
-  console.log("offline, be right back")
+ 
 });
 
 /**

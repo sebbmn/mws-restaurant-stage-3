@@ -173,7 +173,6 @@ class DBHelper {
 
     //first, add the review to IDB
     dbPromise.then(db => {
-      console.log("add the review to IDB");
       DBHelper.addIdbRecords(db,'reviews',null,review);
     });
 
@@ -199,7 +198,7 @@ class DBHelper {
       });
     })
     .catch((error) => {
-      console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
+      console.error(`Unable to add a review, store the data locally. Fetch Error =\n`, error);
       dbStorePromise.then(db => {
         DBHelper.addIdbRecords(db,'reviews',null,review);
       });
@@ -223,13 +222,12 @@ class DBHelper {
     })
     .then((response) => {
       response.json();
-      console.log("Favorite updated", response);
       dbPromise.then(db => {
         DBHelper.clearAllIdbRecords(db,'favorite');
       });
     })
     .catch((error) => {
-      console.error(`Unable to fetch, store the data locally. Fetch Error =\n`, error);
+      console.error(`Unable to update the status, store the data locally. Fetch Error =\n`, error);
       dbPromise.then(db => {
         DBHelper.addIdbRecords(db,'favorite',null,statusUpdate);
       })
@@ -237,7 +235,7 @@ class DBHelper {
   }
 
   /**
-   * send all the records and flush the awaitings DBs
+   * send all the records
    */
   static sendAwaitingRecords() {
     console.log("back online, we'll send all the stuff!")
@@ -257,7 +255,6 @@ class DBHelper {
       return DBHelper.getAllIdbRecords(db,'favorite')
       .then((response) => {
         response.forEach((status) => {
-          console.log(status);
           DBHelper.updateFavoriteStatus(status.id,status.status);
         })
       })
